@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  cli:
+    build: .
+    volumes:
+      - ./data:/app/data
+    stdin_open: true
+    tty: true
+
+  tests:
+    build: .
+    entrypoint: ["dotnet", "test", "tests/LabReservations.Tests", "--logger", "console;verbosity=normal"]
+    volumes:
+      - ./data:/app/data
