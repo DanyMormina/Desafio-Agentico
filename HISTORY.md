@@ -39,4 +39,21 @@ Este documento registra de forma cronológica y acumulativa los hitos implementa
 
 ---
 
+## Hito 2: Servicio de Reservas, Reglas de Superposición y Cancelación No Destructiva
+- **Fecha:** 2026-10-25
+- **Objetivo / Requisito:** Implementar `ReservaService` con la lógica de consulta de disponibilidad, creación de reservas con validaciones de negocio y detección de superposición de intervalos, cancelación no destructiva e historial, junto con la suite completa de los 7 escenarios obligatorios en `ReservaServiceTests`.
+- **Instrucción suministrada:** Crear `src/LabReservations.Cli/ReservaService.cs` inyectando `ReservaRepository` e `Inventario`, implementando `ConsultarDisponibilidad`, `CrearReserva`, `CancelarReserva` y `ObtenerHistorial`. Crear `tests/LabReservations.Tests/ReservaServiceTests.cs` cubriendo los 7 escenarios centrales de dominio y persistencia.
+- **Acción del agente:**
+  - Creó `src/LabReservations.Cli/ReservaService.cs` con validación de inventario, normalización `.Trim()` de solicitante e identificadores, control de intervalo (`Inicio < Fin` y duración `<= 24h`), evaluación estricta de superposición sobre reservas activas (`inicio < existente.Fin && fin > existente.Inicio`), generación de IDs `RES-XXXXXXXX` y cancelación no destructiva preservando el registro original en estado `Cancelada`.
+  - Creó `tests/LabReservations.Tests/ReservaServiceTests.cs` verificando los 7 escenarios obligatorios: creación válida, rechazo de superposición en la misma unidad, aceptación de límites consecutivos exactos, reservas simultáneas en distintas unidades, rechazo de entradas inválidas, cancelación no destructiva y persistencia tras reinicio.
+- **Resultado / Comprobación:**
+  - *Comando ejecutado:* `dotnet test`
+  - *Resultado:* 43 pruebas ejecutadas y superadas con éxito (0 errores, 0 omitidas).
+- **Verificación Humana y Decisión:**
+  - *Decisión:* Pendiente de validación humana.
+  - *Commit sugerido:* `feat(servicio): implementar servicio de reservas, validacion de superposicion y cancelacion no destructiva`
+- **Commit asociado:** Pendiente
+
+---
+
 <!-- Las siguientes entradas se irán agregando al final de este archivo a medida que completemos cada hito -->

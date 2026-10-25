@@ -34,8 +34,8 @@ El catálogo cuenta únicamente con 5 unidades físicas predefinidas (no adminis
 ## 2. Solución
 
 ### Estructura del Proyecto
-- `src/LabReservations.Cli`: Aplicación de consola en C# (.NET 10). Contiene el modelo de dominio (`Models.cs`), el catálogo de inventario (`Inventario.cs`) y el repositorio de persistencia (`ReservaRepository.cs`).
-- `tests/LabReservations.Tests`: Suite de pruebas unitarias e integrales en xUnit (`InventarioTests.cs`, `ReservaRepositoryTests.cs`).
+- `src/LabReservations.Cli`: Aplicación de consola en C# (.NET 10). Contiene el modelo de dominio (`Models.cs`), el catálogo de inventario (`Inventario.cs`), el repositorio de persistencia (`ReservaRepository.cs`) y el servicio de negocio (`ReservaService.cs`).
+- `tests/LabReservations.Tests`: Suite de pruebas unitarias e integrales en xUnit (`InventarioTests.cs`, `ReservaRepositoryTests.cs`, `ReservaServiceTests.cs`).
 - `data/`: Almacenamiento local del inventario (`inventario.json`) y reservas persistidas (`reservas.json`).
 - `scripts/`: Scripts de conveniencia para ejecución y pruebas.
 
@@ -82,5 +82,7 @@ dotnet test
 - **Episodio 1: Diseño de Dominio, Inventario Fijo y Persistencia JSON (Completado).**
   - *Decisión Humana 1.1:* Unificación del catálogo en la clase `Inventario` con `Lazy<Inventario>`, carga desde `data/inventario.json` y fallback en memoria con las 5 unidades fijas para desacoplar dependencias de archivos en pruebas unitarias.
   - *Decisión Humana 1.2:* Incorporación defensiva de validación `!string.IsNullOrWhiteSpace` y normalización `.Trim()` en búsquedas de ID de unidad para tolerar entradas desde consola con espacios marginales.
-- **Episodio 2: Validación de Intervalos y Superposición (Pendiente).**
-- **Episodio 3: Cancelación No Destructiva y Verificación de Reinicio (Pendiente).**
+- **Episodio 2: Servicio de Reservas, Validación de Intervalos y Cancelación No Destructiva (Completado).**
+  - Implementación de `ReservaService` con evaluación estricta de superposición horaria (`inicio < existente.Fin && fin > existente.Inicio`), admisión de límites consecutivos exactos, límite máximo continuo de 24 horas y cancelación no destructiva (`EstadoReserva.Cancelada`).
+  - Validación automatizada en `ReservaServiceTests` cubriendo los 7 escenarios obligatorios de dominio y persistencia tras reinicio (43 pruebas totales aprobadas).
+- **Episodio 3: Interfaz de Línea de Comandos (CLI) y Verificación End-to-End (Pendiente).**
