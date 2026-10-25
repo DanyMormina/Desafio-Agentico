@@ -82,7 +82,7 @@ dotnet test
 - **Episodio 1: Diseño de Dominio, Inventario Fijo y Persistencia JSON (Completado).**
   - *Decisión Humana 1.1:* Unificación del catálogo en la clase `Inventario` con `Lazy<Inventario>`, carga desde `data/inventario.json` y fallback en memoria con las 5 unidades fijas para desacoplar dependencias de archivos en pruebas unitarias.
   - *Decisión Humana 1.2:* Incorporación defensiva de validación `!string.IsNullOrWhiteSpace` y normalización `.Trim()` en búsquedas de ID de unidad para tolerar entradas desde consola con espacios marginales.
-- **Episodio 2: Servicio de Reservas, Validación de Intervalos y Cancelación No Destructiva (Completado).**
-  - Implementación de `ReservaService` con evaluación estricta de superposición horaria (`inicio < existente.Fin && fin > existente.Inicio`), admisión de límites consecutivos exactos, límite máximo continuo de 24 horas y cancelación no destructiva (`EstadoReserva.Cancelada`).
-  - Validación automatizada en `ReservaServiceTests` cubriendo los 7 escenarios obligatorios de dominio y persistencia tras reinicio (43 pruebas totales aprobadas).
+- **Episodio 2: Servicio de Reservas, Validación de Intervalos y Cancelación No Destructiva (Completado — Commit `045efaa`).**
+  - *Decisión Humana 2.1:* Verificación e inspección directa de `ExisteSuperposicionActiva` (`inicio < existente.Fin && fin > existente.Inicio`) y `CancelarReserva` en `ReservaService.cs`, confirmando admisión de límites consecutivos exactos y cancelación inmutable no destructiva con `with { Estado = EstadoReserva.Cancelada }`.
+  - *Cobertura de Pruebas:* Validación automatizada en `ReservaServiceTests` cubriendo los 7 escenarios obligatorios de dominio y persistencia tras reinicio (43 pruebas totales aprobadas).
 - **Episodio 3: Interfaz de Línea de Comandos (CLI) y Verificación End-to-End (Pendiente).**

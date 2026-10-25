@@ -50,9 +50,9 @@ Este documento registra de forma cronológica y acumulativa los hitos implementa
   - *Comando ejecutado:* `dotnet test`
   - *Resultado:* 43 pruebas ejecutadas y superadas con éxito (0 errores, 0 omitidas).
 - **Verificación Humana y Decisión:**
-  - *Decisión:* Pendiente de validación humana.
+  - *Decisión:* Aceptado tras inspección visual de `ExisteSuperposicionActiva` y `CancelarReserva` en `ReservaService.cs`, confirmando la fórmula estricta de intervalos (`<` y `>`) y la actualización inmutable no destructiva mediante `with { Estado = EstadoReserva.Cancelada }`.
   - *Commit sugerido:* `feat(servicio): implementar servicio de reservas, validacion de superposicion y cancelacion no destructiva`
-- **Commit asociado:** Pendiente
+- **Commit asociado:** `045efaa`
 
 ---
 
