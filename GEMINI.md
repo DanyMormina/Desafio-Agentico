@@ -49,3 +49,15 @@ El archivo `README.md` es el punto de entrada evaluativo del repositorio y const
 - **Prohibición de Sobrescritura Destructiva:** NUNCA reescribir ni borrar la sección `1. Especificación breve` ni las validaciones humanas ya registradas.
 - **Sin Bloques Complejos Embebidos:** Los ejemplos de entrada y salida o comandos deben estar claramente delimitados con bloques de código Markdown estándar, breves y legibles.
 - **Sincronización:** Cada actualización en el `README.md` debe guardar coherencia directa con la entrada correspondiente en `HISTORY.md`.
+
+## 6. Convención de Commits y Validación Pre-Commit
+Al completar satisfactoriamente un hito funcional o de pruebas:
+- Verificación previa: antes de sugerir o realizar un commit, se deben ejecutar y aprobar todas las pruebas automatizadas (dotnet test) sin errores.
+- Idioma y formato de commit: redactar los mensajes de commit en español respetando Conventional Commits:
+    tipo(alcance): descripción breve en infinitivo o presente imperativo
+    Ejemplos:
+    feat(dominio): implementar modelo de reserva y carga de inventario fijo
+    test(superposicion): añadir pruebas unitarias para limites consecutivos
+    fix(cancelacion): evitar borrado fisico al cancelar reserva
+- Control humano: el agente debe listar los archivos modificados, el comando de verificación ejecutado y el mensaje de commit sugerido, requiriendo confirmación del usuario antes del commit final o ejecutándolo solo tras la validación humana explícita.
+- Registro cruzado: el hash o mensaje del commit debe asentarse de inmediato en la entrada correspondiente de HISTORY.md.

@@ -34,26 +34,36 @@ El catálogo cuenta únicamente con 5 unidades físicas predefinidas (no adminis
 ## 2. Solución
 
 ### Estructura del Proyecto
-- src/LabReservations.Cli: Aplicación de consola en C# (.NET 10).
-- tests/LabReservations.Tests: Suite de pruebas unitarias e integrales en xUnit.
-- data/: Almacenamiento local del inventario (inventario.json) y reservas persistidas (reservas.json).
-- scripts/: Scripts de conveniencia para ejecución y pruebas.
+- `src/LabReservations.Cli`: Aplicación de consola en C# (.NET 10). Contiene el modelo de dominio (`Models.cs`), el catálogo de inventario (`Inventario.cs`) y el repositorio de persistencia (`ReservaRepository.cs`).
+- `tests/LabReservations.Tests`: Suite de pruebas unitarias e integrales en xUnit (`InventarioTests.cs`, `ReservaRepositoryTests.cs`).
+- `data/`: Almacenamiento local del inventario (`inventario.json`) y reservas persistidas (`reservas.json`).
+- `scripts/`: Scripts de conveniencia para ejecución y pruebas.
 
 ### Requisitos Previos
 - Docker y Docker Compose (método recomendado sin dependencias locales).
 - Alternativa local: .NET 10 SDK instalado.
 
 ### Persistencia y Estado
-Los datos persisten en data/reservas.json. Para Docker, este directorio se monta como volumen (./data:/app/data), asegurando persistencia entre detenciones y reinicios de contenedores.
+Los datos persisten en `data/reservas.json`. Para Docker, este directorio se monta como volumen (`./data:/app/data`), asegurando persistencia entre detenciones y reinicios de contenedores. Las escrituras son atómicas mediante archivos temporales e intercambio atómico (`File.Move`).
 
 ### Comandos de Ejecución y Pruebas
 Compilación y verificación inicial con Docker:
 
-    docker compose build
+```bash
+docker compose build
+```
 
 Ejecución de pruebas automatizadas:
 
-    docker compose run --rm tests
+```bash
+docker compose run --rm tests
+```
+
+Ejecución de pruebas local con .NET CLI:
+
+```powershell
+dotnet test
+```
 
 ---
 
@@ -69,6 +79,8 @@ Ejecución de pruebas automatizadas:
 
 ## 4. Registro de decisiones y delegación
 
-- Episodio 1: Diseño de Dominio, Inventario Fijo y Persistencia JSON (En progreso).
-- Episodio 2: Validación de Intervalos y Superposición (Pendiente).
-- Episodio 3: Cancelación No Destructiva y Verificación de Reinicio (Pendiente).
+- **Episodio 1: Diseño de Dominio, Inventario Fijo y Persistencia JSON (Completado).**
+  - *Decisión Humana 1.1:* Unificación del catálogo en la clase `Inventario` con `Lazy<Inventario>`, carga desde `data/inventario.json` y fallback en memoria con las 5 unidades fijas para desacoplar dependencias de archivos en pruebas unitarias.
+  - *Decisión Humana 1.2:* Incorporación defensiva de validación `!string.IsNullOrWhiteSpace` y normalización `.Trim()` en búsquedas de ID de unidad para tolerar entradas desde consola con espacios marginales.
+- **Episodio 2: Validación de Intervalos y Superposición (Pendiente).**
+- **Episodio 3: Cancelación No Destructiva y Verificación de Reinicio (Pendiente).**
