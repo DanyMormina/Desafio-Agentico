@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "RES-FB73877B",
+    "UnidadId": "MIC-01",
+    "Solicitante": "Investigador A",
+    "Inicio": "2026-10-27T10:00:00",
+    "Fin": "2026-10-27T11:00:00",
+    "Estado": "Cancelada"
+  },
+  {
+    "Id": "RES-BF253DBA",
+    "UnidadId": "MIC-01",
+    "Solicitante": "Investigador B",
+    "Inicio": "2026-10-27T11:00:00",
+    "Fin": "2026-10-27T12:00:00",
+    "Estado": "Activa"
+  }
+]

@@ -56,4 +56,25 @@ Este documento registra de forma cronológica y acumulativa los hitos implementa
 
 ---
 
+## Hito 3: Interfaz CLI, Scripts de Automatización y Comprobación de Reinicio
+- **Fecha:** 2026-10-26
+- **Hito / Objetivo:** Implementar la interfaz de línea de comandos (`Program.cs`) con subcomandos nativos, crear los scripts multiplataforma de pruebas, reinicio de datos y verificación de persistencia entre procesos, y actualizar la documentación final en `README.md` y `HISTORY.md`.
+- **Instrucción / Prompt:** Implementar en `src/LabReservations.Cli/Program.cs` los subcomandos `disponibilidad`, `reservar`, `cancelar`, `historial`, `inventario` y `--help` con parseo nativo, formato ISO 8601 (`yyyy-MM-ddTHH:mm`) y códigos de retorno `0`/`1`. Crear en la raíz `run-tests`, `reset-data` (con advertencia explícita de borrado) y `verify-persistence` (`.bat` y `.sh`). Actualizar `README.md` (secciones 2 y 4) y registrar el Hito 3 en `HISTORY.md`.
+- **Acción del Agente:**
+  - Implementó `src/LabReservations.Cli/Program.cs` (`Program.Main` y `CliRunner`) con `Console.OutputEncoding = System.Text.Encoding.UTF8;` en la primera línea, parseo nativo de argumentos, validación estricta de formato temporal ISO 8601 (`yyyy-MM-ddTHH:mm`), salida tabular para inventario e historial, y captura controlada de excepciones de dominio devolviendo código de salida `1`.
+  - Creó `tests/LabReservations.Tests/CliIntegrationTests.cs` verificando los casos de integración de CLI (`--help`/`-h`, manejo de errores de sintaxis en `Console.Error` con retorno `1`, y consulta de las 5 unidades del subcomando `inventario`).
+  - Creó los scripts multiplataforma en la raíz: `run-tests.bat`, `run-tests.sh`, `reset-data.bat`, `reset-data.sh`, `verify-persistence.bat`, `verify-persistence.ps1` y `verify-persistence.sh` utilizando compilación previa `-c Release` y ejecución `--no-build -c Release`.
+  - Actualizó quirúrgicamente `README.md` en las secciones `2. Solución` y `4. Registro de decisiones y delegación`.
+- **Resultado / Comprobación:**
+  - *Comandos ejecutados:* `dotnet test` y `powershell -ExecutionPolicy Bypass -File .\verify-persistence.ps1`
+  - *Resultado:* 47 pruebas unitarias e integrales aprobadas (0 errores) y verificación end-to-end en procesos independientes completada con éxito (conservación de reserva `CANCELADA` y `ACTIVA` en historial tras reinicio, y liberación efectiva del turno de 10:00 a 11:00).
+- **Validación Humana:**
+  - *Ajustes requeridos:*
+    1. Se exigió fijar `Console.OutputEncoding = System.Text.Encoding.UTF8;` como primera línea de `src/LabReservations.Cli/Program.cs`.
+    2. Se solicitó precompilar en modo `Release` (`--no-build -c Release`) en los scripts de verificación, añadir `verify-persistence.ps1` y agregar pruebas de integración en `CliIntegrationTests.cs`.
+  - *Estado:* Pendiente de confirmación final y commit por el desarrollador.
+  - *Commit sugerido:* `feat(cli): implementar interfaz de comandos, pruebas de integracion y scripts de verificacion`
+
+---
+
 <!-- Las siguientes entradas se irán agregando al final de este archivo a medida que completemos cada hito -->

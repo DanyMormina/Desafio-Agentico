@@ -34,36 +34,127 @@ El catálogo cuenta únicamente con 5 unidades físicas predefinidas (no adminis
 ## 2. Solución
 
 ### Estructura del Proyecto
-- `src/LabReservations.Cli`: Aplicación de consola en C# (.NET 10). Contiene el modelo de dominio (`Models.cs`), el catálogo de inventario (`Inventario.cs`), el repositorio de persistencia (`ReservaRepository.cs`) y el servicio de negocio (`ReservaService.cs`).
-- `tests/LabReservations.Tests`: Suite de pruebas unitarias e integrales en xUnit (`InventarioTests.cs`, `ReservaRepositoryTests.cs`, `ReservaServiceTests.cs`).
+- `src/LabReservations.Cli`: Aplicación de consola en C# (.NET 10). Contiene el punto de entrada y parseo CLI (`Program.cs`), el modelo de dominio (`Models.cs`), el catálogo de inventario (`Inventario.cs`), el repositorio de persistencia (`ReservaRepository.cs`) y el servicio de negocio (`ReservaService.cs`).
+- `tests/LabReservations.Tests`: Suite de pruebas unitarias e integrales en xUnit (`InventarioTests.cs`, `ReservaRepositoryTests.cs`, `ReservaServiceTests.cs`, `CliIntegrationTests.cs`).
 - `data/`: Almacenamiento local del inventario (`inventario.json`) y reservas persistidas (`reservas.json`).
-- `scripts/`: Scripts de conveniencia para ejecución y pruebas.
+- Scripts en raíz (`run-tests`, `reset-data`, `verify-persistence` en variantes `.bat`, `.ps1` y `.sh`): Automatización multiplataforma de pruebas, reinicio de estado y verificación end-to-end de persistencia entre procesos.
 
 ### Requisitos Previos
 - Docker y Docker Compose (método recomendado sin dependencias locales).
 - Alternativa local: .NET 10 SDK instalado.
 
-### Persistencia y Estado
-Los datos persisten en `data/reservas.json`. Para Docker, este directorio se monta como volumen (`./data:/app/data`), asegurando persistencia entre detenciones y reinicios de contenedores. Las escrituras son atómicas mediante archivos temporales e intercambio atómico (`File.Move`).
+### Persistencia, Ubicación de Datos y Reinicio al Estado Inicial
+- **Ubicación de datos:** Las reservas se almacenan localmente en `data/reservas.json` (y el catálogo base en `data/inventario.json`). En Docker, el directorio `./data` se monta como volumen (`./data:/app/data`), asegurando que el estado sobreviva entre ejecuciones independientes y reinicios de contenedores. Las escrituras son atómicas mediante archivos temporales e intercambio con `File.Move`.
+- **Reinicio al estado inicial (Advertencia de borrado):** Para restaurar el sistema a su estado inicial vacío (`[]`), ejecute `reset-data.bat` (Windows) o `./reset-data.sh` (Linux/macOS). **ADVERTENCIA:** Esta operación sobrescribe `data/reservas.json` y **elimina de forma permanente todas las reservas activas y canceladas existentes**.
 
 ### Comandos de Ejecución y Pruebas
-Compilación y verificación inicial con Docker:
+
+Compilación y ejecución de pruebas con Docker:
 
 ```bash
 docker compose build
-```
-
-Ejecución de pruebas automatizadas:
-
-```bash
 docker compose run --rm tests
 ```
 
-Ejecución de pruebas local con .NET CLI:
+Ejecución de pruebas local (script o .NET CLI):
 
 ```powershell
+.\run-tests.bat
 dotnet test
 ```
+
+Verificación demostrativa de persistencia tras reinicio de proceso (PowerShell o Batch):
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\verify-persistence.ps1
+.\verify-persistence.bat
+```
+
+### Uso de la Interfaz CLI y Ejemplos de Entrada / Salida
+
+Puede invocar los subcomandos localmente con `dotnet run --project src/LabReservations.Cli -- <comando>` o mediante Docker con `docker compose run --rm cli <comando>`.
+
+1. **Consultar inventario fijo (`inventario`):**
+
+```powershell
+dotnet run --project src/LabReservations.Cli -- inventario
+```
+
+Salida:
+
+```text
+INVENTARIO FIJO DE LABORATORIO
+---------------------------------------------
+ID         | EQUIPO                        
+---------------------------------------------
+MIC-01     | Microscopio digital           
+MIC-02     | Microscopio digital           
+OSC-01     | Osciloscopio                  
+MUL-01     | Multímetro                    
+FUE-01     | Fuente de alimentación        
+```
+
+2. **Registrar una reserva (`reservar`):**
+
+```powershell
+dotnet run --project src/LabReservations.Cli -- reservar --unit MIC-01 --user "Investigador A" --start 2026-10-27T10:00 --end 2026-10-27T11:00
+```
+
+Salida:
+
+```text
+[RESERVA CREADA]
+ID: RES-311F13E8
+Unidad: MIC-01
+Solicitante: Investigador A
+Inicio: 2026-10-27T10:00
+Fin: 2026-10-27T11:00
+Estado: ACTIVA
+```
+
+3. **Consultar disponibilidad (`disponibilidad`):**
+
+```powershell
+dotnet run --project src/LabReservations.Cli -- disponibilidad --unit MIC-01 --start 2026-10-27T10:00 --end 2026-10-27T11:00
+```
+
+Salida:
+
+```text
+[DISPONIBILIDAD] Unidad: MIC-01 | Intervalo: 2026-10-27T10:00 a 2026-10-27T11:00 | Estado: OCUPADA
+```
+
+4. **Cancelar una reserva sin borrado físico (`cancelar`):**
+
+```powershell
+dotnet run --project src/LabReservations.Cli -- cancelar --id RES-311F13E8
+```
+
+Salida:
+
+```text
+[RESERVA CANCELADA] ID: RES-311F13E8 | Unidad: MIC-01 | Solicitante: Investigador A | Intervalo: 2026-10-27T10:00 a 2026-10-27T11:00 | Estado: CANCELADA (Turno liberado, registro conservado)
+```
+
+5. **Consultar historial de reservas (`historial`):**
+
+```powershell
+dotnet run --project src/LabReservations.Cli -- historial --unit MIC-01
+```
+
+Salida:
+
+```text
+ID             | UNIDAD   | SOLICITANTE          | INICIO           | FIN              | ESTADO    
+---------------------------------------------------------------------------------------------------
+RES-311F13E8   | MIC-01   | Investigador A       | 2026-10-27T10:00 | 2026-10-27T11:00 | CANCELADA 
+RES-A4DC5C96   | MIC-01   | Investigador B       | 2026-10-27T11:00 | 2026-10-27T12:00 | ACTIVA    
+```
+
+### Limitaciones Conocidas
+- **Ejecución local mono-proceso:** El almacenamiento en `data/reservas.json` emplea reemplazo atómico de archivo pensado para uso por consola local; no implementa bloqueo distribuido para escrituras concurrentes de alta frecuencia.
+- **Sin autenticación ni gestión de usuarios:** El campo solicitante es informativo y de validación sintáctica (no vacío), conforme al alcance de la consigna.
+- **Catálogo estático:** Las 5 unidades de laboratorio están fijas por diseño y no se administran altas ni bajas de equipamiento desde la CLI.
 
 ---
 
@@ -85,4 +176,7 @@ dotnet test
 - **Episodio 2: Servicio de Reservas, Validación de Intervalos y Cancelación No Destructiva (Completado — Commit `045efaa`).**
   - *Decisión Humana 2.1:* Verificación e inspección directa de `ExisteSuperposicionActiva` (`inicio < existente.Fin && fin > existente.Inicio`) y `CancelarReserva` en `ReservaService.cs`, confirmando admisión de límites consecutivos exactos y cancelación inmutable no destructiva con `with { Estado = EstadoReserva.Cancelada }`.
   - *Cobertura de Pruebas:* Validación automatizada en `ReservaServiceTests` cubriendo los 7 escenarios obligatorios de dominio y persistencia tras reinicio (43 pruebas totales aprobadas).
-- **Episodio 3: Interfaz de Línea de Comandos (CLI) y Verificación End-to-End (Pendiente).**
+- **Episodio 3: Interfaz de Línea de Comandos (CLI), Scripts de Automatización y Verificación End-to-End (En validación humana).**
+  - *Decisión de Diseño 3.1:* Implementación de parseo de argumentos nativo en `Program.cs` (`CliRunner`) sin librerías externas, forzando validación explícita del formato `yyyy-MM-ddTHH:mm` con `DateTime.TryParseExact` y códigos de salida POSIX/ estándar (`0` éxito, `1` error de validación o negocio).
+  - *Decisión de Diseño 3.2:* Creación de scripts multiplataforma (`run-tests`, `reset-data` con advertencia explícita de pérdida de datos y `verify-persistence` en `.bat`, `.ps1` y `.sh` con compilación previa `-c Release --no-build`) para auditar en procesos separados la persistencia en disco, la admisión de turnos consecutivos y la liberación horaria tras cancelación no destructiva.
+  - *Decisión Humana 3.3:* Exigencia de fijar `Console.OutputEncoding = System.Text.Encoding.UTF8;` como primera línea de `Program.cs` para garantizar la correcta visualización de caracteres acentuados (`Multímetro`, `Fuente de alimentación`) en consolas Windows y contenedores, e incorporación de `CliIntegrationTests.cs` (47 pruebas totales aprobadas).
