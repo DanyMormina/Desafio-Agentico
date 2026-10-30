@@ -72,8 +72,8 @@ Este documento registra de forma cronológica y acumulativa los hitos implementa
   - *Ajustes requeridos:*
     1. Se exigió fijar `Console.OutputEncoding = System.Text.Encoding.UTF8;` como primera línea de `src/LabReservations.Cli/Program.cs`.
     2. Se solicitó precompilar en modo `Release` (`--no-build -c Release`) en los scripts de verificación, añadir `verify-persistence.ps1` y agregar pruebas de integración en `CliIntegrationTests.cs`.
-  - *Estado:* Pendiente de confirmación final y commit por el desarrollador.
-  - *Commit sugerido:* `feat(cli): implementar interfaz de comandos, pruebas de integracion y scripts de verificacion`
+  - *Decisión:* Aprobado tras revisión de la salida completa de `verify-persistence.ps1` y las 47 pruebas automáticas en `dotnet test`.
+- **Commit asociado:** `ea59c29`
 
 ---
 
